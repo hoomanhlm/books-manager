@@ -10,10 +10,10 @@
  * Version:         1.0
  */
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
-if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    require __DIR__ . '/vendor/autoload.php';
+if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
+	require __DIR__ . '/vendor/autoload.php';
 }
 
 use BooksManager\BookMangerBoot;
@@ -29,123 +29,145 @@ use Rabbit\Redirects\AdminNotice;
 use Rabbit\Templates\TemplatesServiceProvider;
 use Rabbit\Utils\Singleton;
 
+/**
+ * Class BooksManagerInit
+ * Responsible for initializing the plugin.
+ *
+ * @since 1.0
+ */
 class BooksManagerInit extends Singleton {
 
-    /**
-     * Application instance.
-     * 
-     * @var Container
-     */
-    private $application;
+	/**
+	 * Application instance.
+	 *
+	 * @var Container
+	 */
+	private $application;
 
-    /**
-     * BooksManagerInit constructor.
-     * 
-     * @since 1.0
-     */
-    public function __construct() {
-        $this->application = Application::get()->loadPlugin(__DIR__, __FILE__, 'config');
-        $this->init();
-    }
+	/**
+	 * BooksManagerInit constructor.
+	 *
+	 * @since 1.0
+	 */
+	public function __construct() {
+		$this->application = Application::get()->loadPlugin( __DIR__, __FILE__, 'config' );
+		$this->init();
+	}
 
-    /**
-     * Initialize the plugin.
-     * 
-     * @return void
-     * @since 1.0
-     */
-    private function init() {
-        try {
-            $this->loadServiceProviders();
+	/**
+	 * Initialize the plugin.
+	 *
+	 * @return void
+	 * @since 1.0
+	 */
+	private function init() {
+		try {
+			$this->loadServiceProviders();
 
-            $this->application->onActivation(function() {
-                $this->activatePlugin();
-            });
-    
-            $this->application->onDeactivation(function() {
-                $this->deactivatePlugin();
-            });
-    
-            $this->application->boot(function ( Plugin $plugin ) {
-                BookMangerBoot::get();
-                $plugin->loadPluginTextDomain();
-            });
-        } catch (Exception $e) {
-             /**
-             * Print the exception message to admin notice area
-             */
-            add_action('admin_notices', function () use ($e) {
-                AdminNotice::permanent(['type' => 'error', 'message' => $e->getMessage()]);
-            });
+			$this->application->onActivation(
+				function () {
+					$this->activatePlugin();
+				}
+			);
 
-            /**
-             * Log the exception to file
-             */
-            add_action('init', function () use ($e) {
-                if ($this->application->has('logger')) {
-                    $this->application->get('logger')->warning($e->getMessage());
-                }
-            });
-        }
-        
-    }
+			$this->application->onDeactivation(
+				function () {
+					$this->deactivatePlugin();
+				}
+			);
 
-    /**
-     * Load service providers.
-     * 
-     * @return void
-     * @since 1.0
-     */
-    private function loadServiceProviders() {
-        $this->application->addServiceProvider(DatabaseServiceProvider::class);
-        $this->application->addServiceProvider(TemplatesServiceProvider::class);
-        $this->application->addServiceProvider(LoggerServiceProvider::class);
+			$this->application->boot(
+				function ( Plugin $plugin ) {
+					BookMangerBoot::get();
+					$plugin->loadPluginTextDomain();
+				}
+			);
+		} catch ( Exception $e ) {
+			/**
+			 * Print the exception message to admin notice area
+			 */
+			add_action(
+				'admin_notices',
+				function () use ( $e ) {
+					AdminNotice::permanent(
+						array(
+							'type'    => 'error',
+							'message' => $e->getMessage(),
+						)
+					);
+				}
+			);
 
-        $this->application->addServiceProvider( RegisterBookService::class );
-        $this->application->addServiceProvider( MetaBoxService::class );
-        $this->application->addServiceProvider( InfoListService::class );
-    }
+			/**
+			 * Log the exception to file
+			 */
+			add_action(
+				'init',
+				function () use ( $e ) {
+					if ( $this->application->has( 'logger' ) ) {
+						$this->application->get( 'logger' )->warning( $e->getMessage() );
+					}
+				}
+			);
+		}
+	}
 
-    /**
-     * Runs tasks on plugin activation.
-     * 
-     * @return void
-     * @since 1.0
-     */
-    public function activatePlugin() {
-        DatabaseHandler::createInfoTable();
-    }
+	/**
+	 * Load service providers.
+	 *
+	 * @return void
+	 * @since 1.0
+	 */
+	private function loadServiceProviders() {
+		$this->application->addServiceProvider( DatabaseServiceProvider::class );
+		$this->application->addServiceProvider( TemplatesServiceProvider::class );
+		$this->application->addServiceProvider( LoggerServiceProvider::class );
 
-    /**
-     * Runs tasks on plugin deactivation.
-     * 
-     * @return void
-     * @since 1.0
-     * @todo This method is optional and can be removed if not needed.
-     */
-    public function deactivatePlugin() {
-        // Optional: clear events, cache, or temporary data
-    }
+		// Custom service providers.
+		$this->application->addServiceProvider( RegisterBookService::class );
+		$this->application->addServiceProvider( MetaBoxService::class );
+		$this->application->addServiceProvider( InfoListService::class );
+	}
 
-    /**
-     * Get the application instance.
-     * 
-     * @return Container
-     * @since 1.0
-     */
-    public function getApplication() {
-        return $this->application;
-    }
+	/**
+	 * Runs tasks on plugin activation.
+	 *
+	 * @return void
+	 * @since 1.0
+	 */
+	public function activatePlugin() {
+		DatabaseHandler::createInfoTable();
+	}
+
+	/**
+	 * Runs tasks on plugin deactivation.
+	 *
+	 * @return void
+	 * @since 1.0
+	 * @todo This method is optional and can be removed if not needed.
+	 */
+	public function deactivatePlugin() {
+		// Optional: clear events, cache, or temporary data.
+	}
+
+	/**
+	 * Get the application instance.
+	 *
+	 * @return Container
+	 * @since 1.0
+	 */
+	public function getApplication() {
+		return $this->application;
+	}
 }
 
 /**
  * Initialize the plugin.
- * 
+ *
  * @return BooksManagerInit
  */
-function BooksManagerInit()
-{
-    return BooksManagerInit::get();
+function BooksManagerInit() { // phpcs:ignoreFile WordPress.Files.FileContainsMixedDeclarations
+	return BooksManagerInit::get();
 }
 
 BooksManagerInit();

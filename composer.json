@@ -15,5 +15,15 @@
     "minimum-stability": "stable",
     "require": {
         "veronalabs/rabbit": "^1.5"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.10",
+        "wp-coding-standards/wpcs": "^3.1",
+        "phpmd/phpmd": "^2.15"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }
