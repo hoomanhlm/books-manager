@@ -1,0 +1,19 @@
+{
+    "name": "veronalabs/books-management",
+    "description": "A WordPress plugin for managing book information with custom post types, taxonomies, and Rabbit Framework integration.",
+    "type": "wordpress-plugin",
+    "autoload": {
+        "psr-4": {
+            "BooksManager\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Hooman Helmi"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "veronalabs/rabbit": "^1.5"
+    }
+}
